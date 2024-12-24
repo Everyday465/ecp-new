@@ -10,6 +10,7 @@ import type { Schema } from "../../amplify/data/resource";
 import { generateClient } from "aws-amplify/data";
 
 const client = generateClient<Schema>();
+console.log(client);
 
 const normFile = (e: any) => {
   if (Array.isArray(e)) {
@@ -30,26 +31,36 @@ const App: React.FC = () => {
     setLoading(true);
 
     try {
-      // Extract form values
-      const { itemName, description, status } = values;
+        console.log("Submitting values:", values);
 
-      // Call the create method from the client
-      await client.models.Item.create({
-        itemName,
-        description,
-        status,
-        foundLostBy: "Anonymous", // Adjust if you have user information to pass
-      });
+        const { itemName, description, status } = values;
 
-      message.success("Item added successfully!");
-      form.resetFields(); // Clear the form after submission
+        // Log if client.models.Item is available
+        console.log(client?.models?.Item);
+
+        if (!client?.models?.Item) {
+            throw new Error("Item model is not available in the client.");
+        }
+
+        // Make the API call to create a new item
+        const newItem = await client.models.Item.create({
+            itemName,
+            description,
+            status,
+            foundLostBy: "Anonymous", // Adjust if you have user information to pass
+        });
+
+        console.log("Created new item:", newItem);
+
+        message.success("Item added successfully!");
+        form.resetFields(); // Clear the form after submission
     } catch (error) {
-      console.error("Error adding item:", error);
-      message.error("Failed to add item. Please try again.");
+        console.error("Error adding item:", error);
+        message.error("Failed to add item. Please try again.");
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
-  };
+};
 
   return (
     <Layout>

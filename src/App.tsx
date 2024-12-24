@@ -10,7 +10,7 @@ const { Header } = Layout;
 
 const menuItems = [
   { label: 'Lost & Found', link: '/catalogPage' },
-  { label: 'I found something', link: '/i-found-something' },
+  { label: 'I found/lost something', link: '/createItem' },
   { label: 'I lost something', link: '/i-lost-something' },
 ];
 

@@ -16,7 +16,8 @@ const schema = a.schema({
       itemName: a.string(),
       description: a.string(), 
       status: a.string(), 
-      foundLostBy: a.string(), 
+      foundLostBy: a.string(),
+      imageUrl: a.string(),
     })
     .authorization((allow) => [allow.publicApiKey()]),
 });

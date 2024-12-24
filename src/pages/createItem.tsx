@@ -2,12 +2,12 @@
 import React, { useState } from "react";
 import { PlusOutlined } from "@ant-design/icons";
 import { Button, Form, Input, Select, Upload, Layout, Breadcrumb, message, theme } from "antd";
+import { uploadData } from 'aws-amplify/storage';
+import type { Schema } from "../../amplify/data/resource";
+import { generateClient } from "aws-amplify/data";
 
 const { TextArea } = Input;
 const { Content, Footer } = Layout;
-
-import type { Schema } from "../../amplify/data/resource";
-import { generateClient } from "aws-amplify/data";
 
 const client = generateClient<Schema>();
 console.log(client);
@@ -26,41 +26,62 @@ const App: React.FC = () => {
 
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
+  const [file, setFile] = useState<File | null>(null); // File state
+
+  const handleFileChange = (event: any) => {
+    setFile(event.target.files[0]); // Set the selected file
+  };
 
   const handleSubmit = async (values: any) => {
     setLoading(true);
 
     try {
-        console.log("Submitting values:", values);
+      console.log("Submitting values:", values);
 
-        const { itemName, description, status } = values;
+      const { itemName, description, status } = values;
 
-        // Log if client.models.Item is available
-        console.log(client?.models?.Item);
+      // Check if file is selected, if so, upload to S3
+      let fileKey = "";
+      if (file) {
+        // Upload the file to S3
+        const fileKey = `uploads/${Date.now()}_${file.name}`; // Create a unique file name
+        await uploadData({
+            path: fileKey,
+            data: file,
+            options: {
+              // Specify a target bucket using name assigned in Amplify Backend
+              bucket: 'ca-as1-lostnfound'
+            }
+          }).result;
+      }
 
-        if (!client?.models?.Item) {
-            throw new Error("Item model is not available in the client.");
-        }
+      // Log if client.models.Item is available
+      console.log(client?.models?.Item);
 
-        // Make the API call to create a new item
-        const newItem = await client.models.Item.create({
-            itemName,
-            description,
-            status,
-            foundLostBy: "Anonymous", // Adjust if you have user information to pass
-        });
+      if (!client?.models?.Item) {
+        throw new Error("Item model is not available in the client.");
+      }
 
-        console.log("Created new item:", newItem);
+      // Make the API call to create a new item
+      const newItem = await client.models.Item.create({
+        itemName,
+        description,
+        status,
+        foundLostBy: "Anonymous", // Adjust if you have user information to pass
+        imageUrl: fileKey, 
+      });
 
-        message.success("Item added successfully!");
-        form.resetFields(); // Clear the form after submission
+      console.log("Created new item:", newItem);
+
+      message.success("Item added successfully!");
+      form.resetFields(); // Clear the form after submission
     } catch (error) {
-        console.error("Error adding item:", error);
-        message.error("Failed to add item. Please try again.");
+      console.error("Error adding item:", error);
+      message.error("Failed to add item. Please try again.");
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
-};
+  };
 
   return (
     <Layout>
@@ -114,10 +135,14 @@ const App: React.FC = () => {
               valuePropName="fileList"
               getValueFromEvent={normFile}
             >
-              <Upload action="/upload.do" listType="picture-card">
+              <Upload
+                beforeUpload={() => false} // Disable automatic upload
+                showUploadList={false} // Hide the default list
+              >
                 <button style={{ border: 0, background: "none" }} type="button">
                   <PlusOutlined />
                   <div style={{ marginTop: 8 }}>Upload</div>
+                  <input type="file" onChange={handleFileChange} />
                 </button>
               </Upload>
             </Form.Item>

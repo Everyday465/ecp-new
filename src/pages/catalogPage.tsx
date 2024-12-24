@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Breadcrumb, Layout, theme, Card, Col, Row, Avatar, Image, Pagination, Input, Select } from 'antd';
+import { Breadcrumb, Layout, theme, Card, Col, Row, Avatar, Pagination, Input, Select } from 'antd';
 import { CarryOutOutlined, CommentOutlined, EllipsisOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import { generateClient } from 'aws-amplify/data';
+import { StorageImage } from '@aws-amplify/ui-react-storage'; // Import StorageImage
 import type { Schema } from "../../amplify/data/resource";
 
 const { Meta } = Card;
@@ -93,7 +94,14 @@ const App: React.FC = () => {
                                 <Col span={colSpan} key={item.id}>
                                     <Card
                                         style={{ width: 250, height: 320 }}
-                                        cover={<Image alt={item.itemName} src={item.cover || defaultCover} />} // Default cover if empty
+                                        cover={<StorageImage alt={item.itemName}
+                                            path={item.imageUrl || defaultCover}
+                                            style={{
+                                                width: '100%',           // Ensures the image width is responsive
+                                                height: '150px',         // Set a fixed height of 100px
+                                                objectFit: 'contain',    // Maintains aspect ratio, scales image to fit
+                                                objectPosition: 'center' // Centers the image within the container
+                                            }} />} // Use StorageImage to display the image
                                         actions={[
                                             <CarryOutOutlined key="claim" />,
                                             <CommentOutlined key="comment" />,

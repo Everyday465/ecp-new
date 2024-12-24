@@ -72,7 +72,6 @@ const App = () => {
               padding: 0, // Remove padding
             }}
           />
-          <button onClick={signOut}>Sign out</button>
         </div>
         <Dropdown overlay={avatarMenu} placement="bottomRight" trigger={['click']}>
           <Avatar

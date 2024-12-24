@@ -41,10 +41,11 @@ const App: React.FC = () => {
       const { itemName, description, status } = values;
 
       // Check if file is selected, if so, upload to S3
-      let fileKey = "";
+      let filePath = "";
       if (file) {
         // Upload the file to S3
         const fileKey = `uploads/${Date.now()}_${file.name}`; // Create a unique file name
+        filePath = fileKey;
         await uploadData({
             path: fileKey,
             data: file,
@@ -68,7 +69,7 @@ const App: React.FC = () => {
         description,
         status,
         foundLostBy: "Anonymous", // Adjust if you have user information to pass
-        imageUrl: fileKey, 
+        imageUrl: filePath, 
       });
 
       console.log("Created new item:", newItem);

@@ -100,7 +100,7 @@ const App: React.FC = () => {
                                             <EllipsisOutlined key="ellipsis" />,
                                         ]}
                                     >
-                                        <Link to={`/catalogPage/item${item.id}`}>
+                                        <Link to={`/catalogPage/${item.id}`}>
                                             <Meta
                                                 avatar={<Avatar src={item.avatar || defaultAvatar} />} // Default avatar if empty
                                                 title={item.itemName}

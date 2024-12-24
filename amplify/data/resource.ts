@@ -1,15 +1,22 @@
 import { type ClientSchema, a, defineData } from "@aws-amplify/backend";
 
 /*== STEP 1 ===============================================================
-The section below creates a Todo database table with a "content" field. Try
-adding a new "isDone" field as a boolean. The authorization rule below
-specifies that any user authenticated via an API key can "create", "read",
-"update", and "delete" any "Todo" records.
+The section below creates two database tables: "Todo" and "Notes". 
 =========================================================================*/
 const schema = a.schema({
   Todo: a
     .model({
       content: a.string(),
+      isDone: a.boolean(), // Added the "isDone" field
+    })
+    .authorization((allow) => [allow.publicApiKey()]),
+
+  Item: a
+    .model({
+      itemName: a.string(),
+      description: a.string(), 
+      status: a.string(), 
+      foundLostBy: a.string(), 
     })
     .authorization((allow) => [allow.publicApiKey()]),
 });
@@ -28,13 +35,8 @@ export const data = defineData({
 });
 
 /*== STEP 2 ===============================================================
-Go to your frontend source code. From your client-side code, generate a
-Data client to make CRUDL requests to your table. (THIS SNIPPET WILL ONLY
-WORK IN THE FRONTEND CODE FILE.)
-
-Using JavaScript or Next.js React Server Components, Middleware, Server 
-Actions or Pages Router? Review how to generate Data clients for those use
-cases: https://docs.amplify.aws/gen2/build-a-backend/data/connect-to-API/
+Generate and use Data clients for your frontend code.
+Refer to Amplify's documentation for detailed frontend setup.
 =========================================================================*/
 
 /*
@@ -46,12 +48,10 @@ const client = generateClient<Schema>() // use this Data client for CRUDL reques
 */
 
 /*== STEP 3 ===============================================================
-Fetch records from the database and use them in your frontend component.
-(THIS SNIPPET WILL ONLY WORK IN THE FRONTEND CODE FILE.)
+Fetch records from the respective database tables in your frontend component.
 =========================================================================*/
 
-/* For example, in a React component, you can use this snippet in your
-  function's RETURN statement */
-// const { data: todos } = await client.models.Todo.list()
+// Example fetching from Notes table
+// const { data: notes } = await client.models.Notes.list()
 
-// return <ul>{todos.map(todo => <li key={todo.id}>{todo.content}</li>)}</ul>
+// return <ul>{notes.map(note => <li key={note.id}>{note.title}: {note.content}</li>)}</ul>

@@ -8,38 +8,44 @@ import { Avatar, Layout, Menu, Dropdown } from 'antd';
 import type { MenuProps } from 'antd';
 const { Header } = Layout;
 
-const menuItems = [
-  { label: 'Lost & Found', link: '/catalogPage' },
-  { label: 'I found/lost something', link: '/createItem' },
-  { label: 'I lost something', link: '/i-lost-something' },
-];
-
-const items: MenuProps['items'] = menuItems.map((item) => ({
-  key: item.label,
-  label: <Link to={item.link}>{item.label}</Link>,
-}));
-
-
-const avatarMenu = (
-  <Menu
-    items={[
-      {
-        key: '1',
-        label: <Link to="/profile">Profile</Link>,
-      },
-      {
-        key: '2',
-        label: <Link to="/settings">Settings</Link>,
-      },
-      {
-        key: '3',
-        label: <Link to="/logout">Logout</Link>,
-      },
-    ]}
-  />
-);
+import { useAuthenticator } from '@aws-amplify/ui-react';
 
 const App = () => {
+
+  const { signOut } = useAuthenticator();
+
+  const menuItems = [
+    { label: 'Lost & Found', link: '/catalogPage' },
+    { label: 'I found/lost something', link: '/createItem' },
+    { label: 'I lost something', link: '/i-lost-something' },
+  ];
+
+  const items: MenuProps['items'] = menuItems.map((item) => ({
+    key: item.label,
+    label: <Link to={item.link}>{item.label}</Link>,
+  }));
+
+
+  const avatarMenu = (
+    <Menu
+      items={[
+        {
+          key: '1',
+          label: <Link to="/profile">Profile</Link>,
+        },
+        {
+          key: '2',
+          label: <Link to="/settings">Settings</Link>,
+        },
+        {
+          key: '3',
+          label: <button onClick={signOut}>Sign out</button>,
+        },
+      ]}
+    />
+
+  );
+
   return (
     <Router>
       <Header
@@ -66,6 +72,7 @@ const App = () => {
               padding: 0, // Remove padding
             }}
           />
+          <button onClick={signOut}>Sign out</button>
         </div>
         <Dropdown overlay={avatarMenu} placement="bottomRight" trigger={['click']}>
           <Avatar

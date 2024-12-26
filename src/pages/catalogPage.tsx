@@ -95,7 +95,7 @@ const App: React.FC = () => {
                                     <Card
                                         style={{ width: 250, height: 320 }}
                                         cover={<StorageImage alt={item.itemName}
-                                            path={item.imageUrl || defaultCover}
+                                            path={item.imagePath || defaultCover}
                                             style={{
                                                 width: '100%',           // Ensures the image width is responsive
                                                 height: '150px',         // Set a fixed height of 100px
@@ -112,7 +112,7 @@ const App: React.FC = () => {
                                             <Meta
                                                 avatar={<Avatar src={item.avatar || defaultAvatar} />} // Default avatar if empty
                                                 title={item.itemName}
-                                                description={<div style={descriptionStyle}>{item.description}</div>} // Apply description styles
+                                                description={<div style={descriptionStyle}>{item.itemDesc}</div>} // Apply description styles
                                             />
                                         </Link>
                                     </Card>

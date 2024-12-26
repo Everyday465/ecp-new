@@ -1,7 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { PlusOutlined } from "@ant-design/icons";
-import { Button, Form, Input, Select, Upload, Layout, Breadcrumb, message, theme } from "antd";
+import { Button, Form, Input, Select, Layout, Breadcrumb, message, theme } from "antd";
 import { uploadData } from 'aws-amplify/storage';
 import type { Schema } from "../../amplify/data/resource";
 import { generateClient } from "aws-amplify/data";
@@ -39,7 +38,7 @@ const App: React.FC = () => {
     try {
       console.log("Submitting values:", values);
 
-      const { itemName, itemDesc, itemType, itemStatus } = values;
+      const { itemName, itemDesc, itemType, itemStatus, foundLostBy } = values;
 
       // Check if file is selected, if so, upload to S3
       let filePath = "";
@@ -69,7 +68,7 @@ const App: React.FC = () => {
         itemDesc,
         itemType,
         itemStatus,
-        foundLostBy: "Anonymous",
+        foundLostBy,
         imagePath: filePath, 
       });
 
@@ -156,16 +155,8 @@ const App: React.FC = () => {
               valuePropName="fileList" 
               getValueFromEvent={normFile}
             >
-              <Upload
-                beforeUpload={() => false} // Disable automatic upload
-                showUploadList={true} // Hide the default list
-              >
-                <button style={{ border: 0, background: "none" }} type="button" onChange={handleFileChange}>
-                  <PlusOutlined />
-                  <div style={{ marginTop: 8 }}>Add Image</div>
-
-                </button>
-              </Upload>
+                <input type="file" onChange={handleFileChange}>
+                </input>        
             </Form.Item>
 
             <Form.Item style={{ textAlign: "center" }}>

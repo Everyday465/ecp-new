@@ -21,9 +21,9 @@ const schema = a.schema({
       foundLostBy: a.string(),
       imagePath: a.string(),
     })
-    .authorization(allow => [
-      allow.groups(["ADMINS"]).to(["read", "update"]),
-      allow.groups(["STUDENTS"]).to(["read",])
+    .authorization((allow)=> [
+      allow.groups(["ADMINS"]).to(["read","create", "update"]),
+      allow.groups(["STUDENTS"]).to(["read"])
     ]),
 
     addUserToGroup: a
@@ -42,7 +42,7 @@ export type Schema = ClientSchema<typeof schema>;
 export const data = defineData({
   schema,
   authorizationModes: {
-    defaultAuthorizationMode: "apiKey",
+    defaultAuthorizationMode: "iam",
     apiKeyAuthorizationMode: {
       expiresInDays: 30,
     },

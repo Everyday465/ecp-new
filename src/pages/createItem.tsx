@@ -19,6 +19,7 @@ const normFile = (e: any) => {
   return e?.fileList;
 };
 
+
 const App: React.FC = () => {
   const {
     token: { colorBgContainer, borderRadiusLG },
@@ -38,19 +39,18 @@ const App: React.FC = () => {
     try {
       console.log("Submitting values:", values);
 
-      const { itemName, description, status } = values;
+      const { itemName, itemDesc, itemType, itemStatus } = values;
 
       // Check if file is selected, if so, upload to S3
       let filePath = "";
       if (file) {
         // Upload the file to S3
-        const fileKey = `uploads/${Date.now()}_${file.name}`; // Create a unique file name
+        const fileKey = `uploads/${Date.now()}_${file.name}`;
         filePath = fileKey;
         await uploadData({
             path: fileKey,
             data: file,
             options: {
-              // Specify a target bucket using name assigned in Amplify Backend
               bucket: 'ca-as1-lostnfound'
             }
           }).result;
@@ -66,10 +66,11 @@ const App: React.FC = () => {
       // Make the API call to create a new item
       const newItem = await client.models.Item.create({
         itemName,
-        description,
-        status,
-        foundLostBy: "Anonymous", // Adjust if you have user information to pass
-        imageUrl: filePath, 
+        itemDesc,
+        itemType,
+        itemStatus,
+        foundLostBy: "Anonymous",
+        imagePath: filePath, 
       });
 
       console.log("Created new item:", newItem);
@@ -114,15 +115,15 @@ const App: React.FC = () => {
 
             <Form.Item
               label="Description"
-              name="description"
+              name="itemDesc"
               rules={[{ required: true, message: "Please enter a description" }]}
             >
               <TextArea rows={4} />
             </Form.Item>
 
             <Form.Item
-              label="Claim"
-              name="status"
+              label="Item Type"
+              name="itemType"
               rules={[{ required: true, message: "Please select a claim type" }]}
             >
               <Select>
@@ -132,18 +133,37 @@ const App: React.FC = () => {
             </Form.Item>
 
             <Form.Item
-              label="Upload"
-              valuePropName="fileList"
+              label="Status"
+              name="itemStatus"
+              rules={[{ required: true, message: "Please select a status" }]}
+            >
+              <Select>
+                <Select.Option value="Unclaimed">Unclaimed</Select.Option>
+                <Select.Option value="Claimed">Claimed</Select.Option>
+              </Select>
+            </Form.Item>
+
+            <Form.Item
+              label="Found/Lost By"
+              name="foundLostBy"
+              rules={[{ required: true, message: "Please enter who found/lost item" }]}
+            >
+              <Input />
+            </Form.Item>
+
+            <Form.Item
+              label="Item Image"
+              valuePropName="fileList" 
               getValueFromEvent={normFile}
             >
               <Upload
                 beforeUpload={() => false} // Disable automatic upload
-                showUploadList={false} // Hide the default list
+                showUploadList={true} // Hide the default list
               >
-                <button style={{ border: 0, background: "none" }} type="button">
+                <button style={{ border: 0, background: "none" }} type="button" onChange={handleFileChange}>
                   <PlusOutlined />
-                  <div style={{ marginTop: 8 }}>Upload</div>
-                  <input type="file" onChange={handleFileChange} />
+                  <div style={{ marginTop: 8 }}>Add Image</div>
+
                 </button>
               </Upload>
             </Form.Item>

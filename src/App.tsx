@@ -3,6 +3,7 @@ import TemplatePage from './pages/templatePage';
 import CatalogPage from './pages/catalogPage';
 import ItemDescription from './pages/itemDesc';
 import CreateItem from './pages/createItem';
+import Test from './pages/test';
 
 import { Avatar, Layout, Menu, Dropdown } from 'antd';
 import type { MenuProps } from 'antd';
@@ -90,6 +91,7 @@ const App = () => {
         <Route path="/catalogPage" element={<CatalogPage />} />
         <Route path="/catalogPage/:id" element={<ItemDescription />} />
         <Route path="/createItem" element={<CreateItem />} />
+        <Route path="/test" element={<Test />} />
       </Routes>
     </Router>
   );

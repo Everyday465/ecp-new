@@ -7,17 +7,18 @@ const schema = a.schema({
   Todo: a
     .model({
       content: a.string(),
-      isDone: a.boolean(), // Added the "isDone" field
+      isDone: a.boolean(), 
     })
     .authorization((allow) => [allow.publicApiKey()]),
 
   Item: a
     .model({
       itemName: a.string(),
-      description: a.string(), 
-      status: a.string(), 
+      itemDesc: a.string(), 
+      itemType: a.string(), 
+      itemStatus: a.string(), 
       foundLostBy: a.string(),
-      imageUrl: a.string(),
+      imagePath: a.string(),
     })
     .authorization((allow) => [allow.publicApiKey()]),
 });

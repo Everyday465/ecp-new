@@ -12,6 +12,7 @@ const client = generateClient<Schema>();
 interface Item {
     itemName: string;
     description: string;
+    type: string;
     status: string;
     foundLostBy: string;
     id: string;
@@ -35,8 +36,9 @@ const App: React.FC = () => {
                     if (data) {
                         setItem({
                             itemName: data.itemName ?? "Unknown Item Name", // Default value
-                            description: data.description ?? "No Description",
-                            status: data.status ?? "Unknown Status",
+                            description: data.itemDesc ?? "No Description",
+                            type: data.itemType ?? "No Type",
+                            status: data.itemStatus ?? "Unknown Status",
                             foundLostBy: data.foundLostBy ?? "Unknown",
                             id: data.id,
                             createdAt: data.createdAt,
@@ -56,7 +58,7 @@ const App: React.FC = () => {
         return <div>Loading...</div>;
     }
 
-    const tagText = item.status === "Found" ? "Found Item" : "Lost Item";
+    const tagText = item.type === "Found" ? "Found Item" : "Lost Item";
 
     return (
         <Layout>
@@ -100,8 +102,8 @@ const App: React.FC = () => {
                         <Descriptions.Item label="Description">
                             {item.description}
                         </Descriptions.Item>
-                        <Descriptions.Item label="Resolution">
-                            Unclaimed/Claimed
+                        <Descriptions.Item label="Status">
+                            {item.status}
                         </Descriptions.Item>
                         <Descriptions.Item label="Found/Lost by">
                             {item.foundLostBy}

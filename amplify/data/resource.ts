@@ -21,7 +21,10 @@ const schema = a.schema({
       foundLostBy: a.string(),
       imagePath: a.string(),
     })
-    .authorization((allow) => [allow.publicApiKey()]),
+    .authorization(allow => [
+      allow.groups(["ADMINS"]).to(["read", "update"]),
+      allow.groups(["STUDENTS"]).to(["read",])
+    ]),
 
     addUserToGroup: a
     .mutation()

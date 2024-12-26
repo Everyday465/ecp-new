@@ -1,4 +1,5 @@
 import { type ClientSchema, a, defineData } from "@aws-amplify/backend";
+import { addUserToGroup } from "./add-user-to-group/resource"
 
 /*== STEP 1 ===============================================================
 The section below creates two database tables: "Todo" and "Notes". 
@@ -21,6 +22,16 @@ const schema = a.schema({
       imagePath: a.string(),
     })
     .authorization((allow) => [allow.publicApiKey()]),
+
+    addUserToGroup: a
+    .mutation()
+    .arguments({
+      userId: a.string().required(),
+      groupName: a.string().required(),
+    })
+    .authorization((allow) => [allow.group("ADMINS")])
+    .handler(a.handler.function(addUserToGroup))
+    .returns(a.json())
 });
 
 export type Schema = ClientSchema<typeof schema>;
@@ -29,7 +40,6 @@ export const data = defineData({
   schema,
   authorizationModes: {
     defaultAuthorizationMode: "apiKey",
-    // API Key is used for a.allow.public() rules
     apiKeyAuthorizationMode: {
       expiresInDays: 30,
     },

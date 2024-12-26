@@ -11,6 +11,15 @@ const { Header } = Layout;
 
 import { useAuthenticator } from '@aws-amplify/ui-react';
 
+import type { Schema } from "../amplify/data/resource"
+import { generateClient } from "aws-amplify/data"
+
+const client = generateClient<Schema>()
+  await client.mutations.addUserToGroup({
+    groupName: "ADMINS",
+    userId: "24e824f8-b0f1-7027-d068-6b2a1d373846",
+  })
+
 const App = () => {
 
   const { signOut } = useAuthenticator();

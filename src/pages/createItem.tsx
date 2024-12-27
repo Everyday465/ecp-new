@@ -77,7 +77,7 @@ const App: React.FC = () => {
 
       console.log("Created new item:", newItem);
 
-      message.success("Item added successfully!");
+      message.success("Item added teest successfully!");
       form.resetFields(); // Clear the form after submission
     } catch (error) {
       console.error("Error adding item:", error);

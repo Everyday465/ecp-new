@@ -34,7 +34,22 @@ const schema = a.schema({
     })
     .authorization((allow) => [allow.group("ADMINS")])
     .handler(a.handler.function(addUserToGroup))
-    .returns(a.json())
+    .returns(a.json()),
+
+
+    test: a
+    .model({
+      itemName: a.string(),
+      itemDesc: a.string(), 
+      itemType: a.string(), 
+      itemStatus: a.string(), 
+      foundLostBy: a.string(),
+      imagePath: a.string(),
+    })
+    .authorization((allow)=> [
+      allow.groups(["ADMINS"]).to(["read","create", "update", "delete"]),
+      allow.groups(["STUDENTS"]).to(["read"])
+    ]),
 });
 
 export type Schema = ClientSchema<typeof schema>;

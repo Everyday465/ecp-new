@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Breadcrumb, Layout, theme, Descriptions, Tag, message } from 'antd';
-import { useParams, Link } from 'react-router-dom';
+import { Breadcrumb, Layout, theme, Descriptions, Tag, message, Dropdown, Space, Button } from 'antd';
+import { DownOutlined } from '@ant-design/icons';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { generateClient } from 'aws-amplify/data';
 import type { Schema } from '../../amplify/data/resource';
 import { StorageImage } from '@aws-amplify/ui-react-storage';
@@ -33,13 +34,14 @@ const App: React.FC = () => {
 
   const { id } = useParams<{ id: string }>();
   const [item, setItem] = useState<Item | null>(null);
+  const [updateModalVisible, setUpdateModalVisible] = useState(false);
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const navigate = useNavigate();
 
   const fetchItem = async () => {
     if (id) {
       try {
-        const { data } = await client.models.Item.get({ id }, {
-          authMode: 'userPool',
-        });
+        const { data } = await client.models.Item.get({ id }, { authMode: 'userPool' });
         if (data) {
           setItem({
             itemName: data.itemName ?? 'Unknown Item Name',
@@ -70,6 +72,23 @@ const App: React.FC = () => {
 
   const tagText = item.type === 'Found' ? 'Found Item' : 'Lost Item';
 
+  const handleItemDeleted = () => {
+    message.success('Item deleted successfully.');
+    navigate('/catalogPage');
+  };
+
+  const dropdownItems = [
+    {
+      key: '1',
+      label: <span onClick={() => setUpdateModalVisible(true)}>Update Item</span>,
+    },
+    {
+      key: '2',
+      label: <span onClick={() => setDeleteModalVisible(true)}>Delete Item</span>,
+      danger: true,
+    },
+  ];
+
   return (
     <Layout>
       <Content style={{ padding: '0 48px' }}>
@@ -88,19 +107,22 @@ const App: React.FC = () => {
         >
           <Descriptions
             title={
-              <div>
-                Item - {id} <Tag>{tagText}</Tag>
-                <UpdateModal
-                  item={{
-                    id: item.id,
-                    itemName: item.itemName,
-                    description: item.description,
-                  }}
-                  onItemUpdated={fetchItem} // Refresh item details after update
-                />
-                <DeleteModal
-                  item={item}
-                />
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <span>
+                  Item - {id} <Tag>{tagText}</Tag>
+                </span>
+                <Dropdown menu={{ items: dropdownItems }}>
+                  <Button onClick={(e) => e.preventDefault()}
+                    style={{ marginLeft: 'auto' }}>
+
+                    <Space>
+                      Actions
+                      <DownOutlined />
+                    </Space>
+
+                  </Button>
+
+                </Dropdown>
               </div>
             }
           >
@@ -128,6 +150,39 @@ const App: React.FC = () => {
       <Footer style={{ textAlign: 'center' }}>
         Lost&Found ©{new Date().getFullYear()} Created by Elijah
       </Footer>
+
+      {/* Update Modal */}
+      {updateModalVisible && (
+        <UpdateModal
+          item={{
+            id: item.id,
+            itemName: item.itemName,
+            description: item.description,
+            type: item.type,
+            status: item.status,
+            foundLostBy: item.foundLostBy,
+            imagePath: item.imagePath,
+
+          }}
+          onItemUpdated={() => {
+            fetchItem();
+            setUpdateModalVisible(false);
+          }}
+          onCancel={() => setUpdateModalVisible(false)} // Close modal when canceled
+        />
+      )}
+
+      {/* Delete Modal */}
+      {deleteModalVisible && (
+        <DeleteModal
+          item={item}
+          onItemDeleted={() => {
+            handleItemDeleted();
+            setDeleteModalVisible(false);
+          }}
+          onCancel={() => setDeleteModalVisible(false)} // Close modal when canceled
+        />
+      )}
     </Layout>
   );
 };

@@ -1,10 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { Breadcrumb, Layout, theme, Card, Col, Row, Avatar, Pagination, Input, Select } from 'antd';
+import {
+    Breadcrumb,
+    Layout,
+    theme,
+    Card,
+    Col,
+    Row,
+    Avatar,
+    Pagination,
+    Input,
+    Select,
+    Dropdown,
+} from 'antd';
 import { CarryOutOutlined, CommentOutlined, EllipsisOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import { generateClient } from 'aws-amplify/data';
-import { StorageImage } from '@aws-amplify/ui-react-storage'; // Import StorageImage
-import type { Schema } from "../../amplify/data/resource";
+import { StorageImage } from '@aws-amplify/ui-react-storage';
+import UpdateModal from './updateItem';
+import DeleteModal from './deleteItem';
+import type { Schema } from '../../amplify/data/resource';
 
 const { Meta } = Card;
 const { Content, Footer } = Layout;
@@ -13,53 +27,49 @@ const { Search } = Input;
 // Generate the Amplify client
 const client = generateClient<Schema>();
 
-// Default image URLs
-const defaultAvatar = "https://api.dicebear.com/7.x/miniavs/svg?seed=defaultAvatar";
-const defaultCover = "https://gw.alipayobjects.com/zos/rmsportal/JiqGstEfoWAOHiTxclqi.png";
+const defaultAvatar = 'https://api.dicebear.com/7.x/miniavs/svg?seed=defaultAvatar';
+const defaultCover = 'https://gw.alipayobjects.com/zos/rmsportal/JiqGstEfoWAOHiTxclqi.png';
 
-// Component
 const App: React.FC = () => {
-    const [items, setItems] = useState<any[]>([]); // State to store fetched items
-    const [colSpan, setColSpan] = useState(6); // State to store column span based on screen size
-    const [loading, setLoading] = useState(false); // Loading state for fetching data
+    const [items, setItems] = useState<any[]>([]);
+    const [colSpan, setColSpan] = useState(6);
+    const [loading, setLoading] = useState(false);
+    const [updateModalVisible, setUpdateModalVisible] = useState(false);
+    const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+    const [selectedItem, setSelectedItem] = useState<any>(null);
 
     const onSearch = (value: string) => {
         console.log('Search:', value);
-        // You can implement search filtering here
     };
 
-    // Update the column span based on window width
     const updateColSpan = () => {
         const width = window.innerWidth;
         if (width < 576) {
-            setColSpan(24); // 1 card per row on extra small screens
+            setColSpan(24);
         } else if (width < 768) {
-            setColSpan(12); // 2 cards per row on small screens
+            setColSpan(12);
         } else if (width < 992) {
-            setColSpan(8); // 3 cards per row on medium screens
+            setColSpan(8);
         } else {
-            setColSpan(6); // 4 cards per row on large screens
+            setColSpan(6);
         }
     };
 
-    // Fetch items from the backend on component mount
-    useEffect(() => {
-        const fetchItems = async () => {
-            setLoading(true);
-            try {
-                const response = await client.models.Item.list(  
-                    {
-                      authMode: 'userPool',
-                    }); // Fetch all items from the Item model
-                setItems(response.data); // Set the items into the state
-            } catch (error) {
-                console.error('Error fetching items:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
+    const refreshList = async () => {
+        setLoading(true);
+        try {
+            const response = await client.models.Item.list({ authMode: 'userPool' });
+            setItems(response.data);
+        } catch (error) {
+            console.error('Error fetching items:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
-        fetchItems();
+    useEffect(() => {
+        refreshList();
+        setUpdateModalVisible(true);
         window.addEventListener('resize', updateColSpan);
 
         return () => {
@@ -67,14 +77,61 @@ const App: React.FC = () => {
         };
     }, []);
 
-    // Style for description
-    const descriptionStyle = {
-        display: "-webkit-box",
-        webkitBoxOrient: "vertical",
-        overflow: "hidden",
-        webkitLineClamp: 2, // Limit to 2 lines
-        height: "40px", // Ensure 2 lines of text fit
+    const handleClaimStatusChange = async (item: any) => {
+        const newStatus = item.itemStatus === 'Unclaimed' ? 'Claimed' : 'Unclaimed';
+        try {
+            await client.models.Item.update(
+                {
+                    id: item.id,
+                    itemStatus: newStatus,
+                },
+                {
+                    authMode: 'userPool',
+                }
+            );
+            refreshList();
+        } catch (error) {
+            console.error('Error updating item status:', error);
+        }
     };
+
+    const descriptionStyle = {
+        display: '-webkit-box',
+        webkitBoxOrient: 'vertical',
+        overflow: 'hidden',
+        webkitLineClamp: 2,
+        height: '40px',
+    };
+
+    const getDropdownItems = (item: any) => [
+        {
+            key: '1',
+            label: (
+                <span
+                    onClick={() => {
+                        setSelectedItem(item); // Set the selected item
+                        setUpdateModalVisible(true); // Show the Update Modal
+                    }}
+                >
+                    Update Item
+                </span>
+            ),
+        },
+        {
+            key: '2',
+            label: (
+                <span
+                    onClick={() => {
+                        setSelectedItem(item); // Set the selected item
+                        setDeleteModalVisible(true); // Show the Delete Modal
+                    }}
+                >
+                    Delete Item
+                </span>
+            ),
+            danger: true,
+        },
+    ];
 
     return (
         <Layout>
@@ -82,8 +139,14 @@ const App: React.FC = () => {
                 <Breadcrumb style={{ margin: '16px 0' }}>
                     <Breadcrumb.Item>Lost & Found</Breadcrumb.Item>
                 </Breadcrumb>
-                <div style={{ padding: 20, background: theme.useToken().token.colorBgContainer, borderRadius: theme.useToken().token.borderRadiusLG }}>
-                    <Search placeholder="Search" allowClear onSearch={onSearch} style={{ width: 400, margin: "0 16px 16px 0" }} />
+                <div
+                    style={{
+                        padding: 20,
+                        background: theme.useToken().token.colorBgContainer,
+                        borderRadius: theme.useToken().token.borderRadiusLG,
+                    }}
+                >
+                    <Search placeholder="Search" allowClear onSearch={onSearch} style={{ width: 400, margin: '0 16px 16px 0' }} />
                     <Select labelInValue defaultValue={{ value: 'latest', label: 'Latest' }} style={{ width: 120 }}>
                         <Select.Option value="latest">Latest</Select.Option>
                         <Select.Option value="lost">Lost Item</Select.Option>
@@ -97,25 +160,37 @@ const App: React.FC = () => {
                                 <Col span={colSpan} key={item.id}>
                                     <Card
                                         style={{ width: 250, height: 320 }}
-                                        cover={<StorageImage alt={item.itemName}
-                                            path={item.imagePath || defaultCover}
-                                            style={{
-                                                width: '100%',           // Ensures the image width is responsive
-                                                height: '150px',         // Set a fixed height of 100px
-                                                objectFit: 'contain',    // Maintains aspect ratio, scales image to fit
-                                                objectPosition: 'center' // Centers the image within the container
-                                            }} />} // Use StorageImage to display the image
+                                        cover={
+                                            <StorageImage
+                                                alt={item.itemName}
+                                                path={item.imagePath || defaultCover}
+                                                style={{
+                                                    width: '100%',
+                                                    height: '150px',
+                                                    objectFit: 'contain',
+                                                    objectPosition: 'center',
+                                                }}
+                                            />
+                                        }
                                         actions={[
-                                            <CarryOutOutlined key="claim" />,
+                                            <CarryOutOutlined
+                                                key="claim"
+                                                style={{
+                                                    color: item.itemStatus === 'Claimed' ? 'green' : 'black',
+                                                }}
+                                                onClick={() => handleClaimStatusChange(item)}
+                                            />,
                                             <CommentOutlined key="comment" />,
-                                            <EllipsisOutlined key="ellipsis" />,
+                                            <Dropdown menu={{ items: getDropdownItems(item) }}>
+                                                <EllipsisOutlined key="ellipsis" />
+                                            </Dropdown>,
                                         ]}
                                     >
                                         <Link to={`/catalogPage/${item.id}`}>
                                             <Meta
-                                                avatar={<Avatar src={item.avatar || defaultAvatar} />} // Default avatar if empty
+                                                avatar={<Avatar src={item.avatar || defaultAvatar} />}
                                                 title={item.itemName}
-                                                description={<div style={descriptionStyle}>{item.itemDesc}</div>} // Apply description styles
+                                                description={<div style={descriptionStyle}>{item.itemDesc}</div>}
                                             />
                                         </Link>
                                     </Card>
@@ -129,6 +204,38 @@ const App: React.FC = () => {
             <Footer style={{ textAlign: 'center' }}>
                 Lost&Found ©{new Date().getFullYear()} Created by Elijah
             </Footer>
+
+            {/* Update Modal */}
+            {updateModalVisible && selectedItem && (
+                <UpdateModal
+                    item={{
+                        id: selectedItem.id,
+                        itemName: selectedItem.itemName,
+                        description: selectedItem.itemDesc,
+                        type: selectedItem.itemType,
+                        status: selectedItem.itemStatus,
+                        foundLostBy: selectedItem.foundLostBy,
+                        imagePath: selectedItem.imagePath,
+                    }}
+                    onItemUpdated={() => {
+                        refreshList();
+                        setUpdateModalVisible(false);
+                    }}
+                    onCancel={() => setUpdateModalVisible(false)} // Close modal when canceled
+                />
+            )}
+
+            {/* Delete Modal */}
+            {deleteModalVisible && selectedItem && (
+                <DeleteModal
+                    item={selectedItem}
+                    onItemDeleted={() => {
+                        refreshList();
+                        setDeleteModalVisible(false);
+                    }}
+                    onCancel={() => setDeleteModalVisible(false)} // Close modal when canceled
+                />
+            )}
         </Layout>
     );
 };

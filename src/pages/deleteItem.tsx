@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, Modal, message } from 'antd';
+import { Modal, message } from 'antd';
 import { generateClient } from 'aws-amplify/data';
 import { type Schema } from '../../amplify/data/resource';
 
@@ -10,16 +10,12 @@ interface DeleteModalProps {
     id: string;
     itemName: string;
   };
-  //onItemDeleted: () => void; // Callback to refresh the list after deleting
+  onItemDeleted: () => void; // Callback to refresh the list after deleting
+  onCancel: () => void; // Callback to close the modal
 }
 
-const DeleteModal: React.FC<DeleteModalProps> = ({ item }) => {
-  const [open, setOpen] = useState(false);
+const DeleteModal: React.FC<DeleteModalProps> = ({ item, onItemDeleted, onCancel }) => {
   const [confirmLoading, setConfirmLoading] = useState(false);
-
-  const showModal = () => {
-    setOpen(true);
-  };
 
   const handleOk = async () => {
     setConfirmLoading(true);
@@ -39,9 +35,9 @@ const DeleteModal: React.FC<DeleteModalProps> = ({ item }) => {
       }
 
       message.success('Item deleted successfully!');
-      setOpen(false);
       setConfirmLoading(false);
-      //onItemDeleted(); // Refresh the item list
+      onItemDeleted(); // Refresh the item list
+      onCancel(); // Close the modal
     } catch (error) {
       console.error(error);
       message.error('Failed to delete item.');
@@ -50,24 +46,19 @@ const DeleteModal: React.FC<DeleteModalProps> = ({ item }) => {
   };
 
   const handleCancel = () => {
-    setOpen(false);
+    onCancel(); // Close the modal
   };
 
   return (
-    <>
-      <Button danger onClick={showModal}>
-        Delete Item
-      </Button>
-      <Modal
-        title={`Delete ${item.itemName}`}
-        open={open}
-        onOk={handleOk}
-        confirmLoading={confirmLoading}
-        onCancel={handleCancel}
-      >
-        <p>Are you sure you want to delete this item?</p>
-      </Modal>
-    </>
+    <Modal
+      title={`Delete ${item.itemName}`}
+      open={true}
+      onOk={handleOk}
+      confirmLoading={confirmLoading}
+      onCancel={handleCancel}
+    >
+      <p>Are you sure you want to delete this item?</p>
+    </Modal>
   );
 };
 

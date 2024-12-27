@@ -70,6 +70,9 @@ const App: React.FC = () => {
         itemStatus,
         foundLostBy,
         imagePath: filePath, 
+      },
+      {
+        authMode: 'userPool',
       });
 
       console.log("Created new item:", newItem);

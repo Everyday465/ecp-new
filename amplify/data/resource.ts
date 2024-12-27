@@ -22,7 +22,7 @@ const schema = a.schema({
       imagePath: a.string(),
     })
     .authorization((allow)=> [
-      allow.groups(["ADMINS"]).to(["read","create", "update"]),
+      allow.groups(["ADMINS"]).to(["read","create", "update", "delete"]),
       allow.groups(["STUDENTS"]).to(["read"])
     ]),
 

@@ -47,7 +47,10 @@ const App: React.FC = () => {
         const fetchItems = async () => {
             setLoading(true);
             try {
-                const response = await client.models.Item.list(); // Fetch all items from the Item model
+                const response = await client.models.Item.list(  
+                    {
+                      authMode: 'userPool',
+                    }); // Fetch all items from the Item model
                 setItems(response.data); // Set the items into the state
             } catch (error) {
                 console.error('Error fetching items:', error);

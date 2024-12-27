@@ -37,6 +37,9 @@ const UpdateModal: React.FC<UpdateModalProps> = ({ item, onItemUpdated }) => {
         id: item.id,
         itemName: values.itemName,
         itemDesc: values.description,
+      },
+      {
+        authMode: 'userPool',
       });
 
       if (errors) {

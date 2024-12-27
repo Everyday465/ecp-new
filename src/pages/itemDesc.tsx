@@ -5,6 +5,7 @@ import { generateClient } from 'aws-amplify/data';
 import type { Schema } from '../../amplify/data/resource';
 import { StorageImage } from '@aws-amplify/ui-react-storage';
 import UpdateModal from './updateItem';
+import DeleteModal from './deleteItem';
 
 const { Content, Footer } = Layout;
 
@@ -36,7 +37,9 @@ const App: React.FC = () => {
   const fetchItem = async () => {
     if (id) {
       try {
-        const { data } = await client.models.Item.get({ id });
+        const { data } = await client.models.Item.get({ id }, {
+          authMode: 'userPool',
+        });
         if (data) {
           setItem({
             itemName: data.itemName ?? 'Unknown Item Name',
@@ -94,6 +97,9 @@ const App: React.FC = () => {
                     description: item.description,
                   }}
                   onItemUpdated={fetchItem} // Refresh item details after update
+                />
+                <DeleteModal
+                  item={item}
                 />
               </div>
             }

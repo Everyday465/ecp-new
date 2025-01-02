@@ -3,13 +3,14 @@ import React, { useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 
 const MeetingRoomPage: React.FC = () => {
-  const { name, selectedMic, selectedCam } = useLocation().state as {
+  const { name } = useLocation().state as {
     name: string;
     selectedMic: string | null;
     selectedCam: string | null;
   };
   const videoRef = useRef<HTMLVideoElement>(null);
 
+  // selectedMic, selctedCam
   useEffect(() => {
     // This is where the Chime SDK integration will go for audio and video setup
     // For now, we assume you have already set up video/audio streams

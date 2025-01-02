@@ -4,6 +4,7 @@ import HomePage from "./pages/HomePage";
 import MeetingArrivalPage from "./pages/MeetingArrivalPage";
 import MeetingConfigPage from "./pages/MeetingConfigPage";
 import MeetingRoomPage from "./pages/MeetingRoomPage";
+import MeetingPage from "./pages/MeetingPage";
 
 const App: React.FC = () => {
   return (
@@ -13,6 +14,7 @@ const App: React.FC = () => {
         <Route path="/MeetingArrivalPage" element={<MeetingArrivalPage />} />
         <Route path="/MeetingConfigPage" element={<MeetingConfigPage />} />
         <Route path="/MeetingRoomPage" element={<MeetingRoomPage />} />
+        <Route path="/MeetingPage" element={<MeetingPage />} />
       </Routes>
     </Router>
   );

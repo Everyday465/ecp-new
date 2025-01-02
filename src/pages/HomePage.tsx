@@ -15,7 +15,7 @@ const HomePage: React.FC = () => {
       {/* Navigation Buttons */}
       <div style={{ marginTop: "2rem" }}>
         <button
-          onClick={() => navigate("/meeting")}
+          onClick={() => navigate("/MeetingPage")}
           style={{
             backgroundColor: "#6aa84f",
             color: "#fff",
